@@ -9,5 +9,5 @@ data class PrioridadEntity(
     @PrimaryKey
     val prioridadid: Int? = null,
     val descripcion: String = "",
-    val diascompromiso: String = ""
+    val diascompromiso: Int?
 )
