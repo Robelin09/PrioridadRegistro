@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
             PrioridadDb::class.java,
             "Prioridad.db"
         ).fallbackToDestructiveMigration().build()
-
         setContent {
             PrioridadRegistroTheme {
                 PrioridadScreen()
@@ -125,7 +124,6 @@ class MainActivity : ComponentActivity() {
                         Icon(Icons.Default.Add, contentDescription = "Guardar")
                         Text("Guardar")
                     }
-
                     OutlinedButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
@@ -151,7 +149,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     @Composable
     fun PrioridadListScreen(prioridadList: List<PrioridadEntity>) {
         Column(
@@ -160,7 +157,6 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(35.dp))
             Text("Lista de Prioridades", style = MaterialTheme.typography.headlineMedium)
 
-            // Títulos de las columnas
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -196,7 +192,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     @Composable
     private fun PrioridadRow(it: PrioridadEntity) {
         Row(
