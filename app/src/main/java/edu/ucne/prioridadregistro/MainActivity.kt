@@ -10,11 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,10 +30,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -58,7 +63,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     @Composable
     fun PrioridadScreen() {
         var descripcion by remember { mutableStateOf("") }
@@ -90,7 +94,6 @@ class MainActivity : ComponentActivity() {
                 errorMessage?.let {
                     Text(text = it, color = Color.Red)
                 }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -136,7 +139,6 @@ class MainActivity : ComponentActivity() {
                         Text("Nuevo")
                     }
                 }
-
                 val lifecycleOwner = LocalLifecycleOwner.current
                 val prioridadList by prioridadDb.prioridadDao().getAll()
                     .collectAsStateWithLifecycle(
@@ -144,17 +146,72 @@ class MainActivity : ComponentActivity() {
                         lifecycleOwner = lifecycleOwner,
                         minActiveState = Lifecycle.State.STARTED
                     )
-
                 Spacer(modifier = Modifier.padding(8.dp))
-
+                PrioridadListScreen(prioridadList)
             }
         }
     }
 
+    @Composable
+    fun PrioridadListScreen(prioridadList: List<PrioridadEntity>) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.height(35.dp))
+            Text("Lista de Prioridades", style = MaterialTheme.typography.headlineMedium)
 
+            // Títulos de las columnas
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                Text(
+                    modifier = Modifier.weight(2f),
+                    text = "ID",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    modifier = Modifier.weight(2f),
+                    text = "Descripción",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    modifier = Modifier.weight(2f),
+                    text = "Días Compromiso",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
 
+            HorizontalDivider()
 
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(prioridadList) {
+                    PrioridadRow(it)
+                }
+            }
+        }
+    }
 
+    @Composable
+    private fun PrioridadRow(it: PrioridadEntity) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(modifier = Modifier.weight(2f), text = it.prioridadid.toString())
+            Text(
+                modifier = Modifier.weight(2f),
+                text = it.descripcion,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(modifier = Modifier.weight(2f), text = it.diascompromiso.toString())
+        }
+        HorizontalDivider()
+    }
     private suspend fun savePrioridad(prioridad: PrioridadEntity) {
         prioridadDb.prioridadDao().save(prioridad)
     }
