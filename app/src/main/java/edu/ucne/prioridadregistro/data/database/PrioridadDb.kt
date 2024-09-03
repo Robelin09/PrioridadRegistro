@@ -13,5 +13,5 @@ import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
     exportSchema=false
 )
 abstract class PrioridadDb : RoomDatabase(){
-    abstract fun PrioridadDao(): PrioridadDao
+    abstract fun prioridadDao(): PrioridadDao
 }
