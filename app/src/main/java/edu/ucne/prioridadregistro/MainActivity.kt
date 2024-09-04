@@ -103,7 +103,8 @@ class MainActivity : ComponentActivity() {
                             val dias = diasCompromiso.toIntOrNull()
                             if (descripcion.isBlank()) {
                                 errorMessage = "La descripción no puede estar vacía"
-                            } else if (dias == null || dias <= 0) {
+                            }
+                            if (dias == null || dias <= 0) {
                                 errorMessage = "Días compromiso debe ser un número válido"
                             } else {
                                 scope.launch {
