@@ -38,9 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import edu.ucne.prioridadregistro.data.database.PrioridadDb
 import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.presentation.navigation.PrioridadNavHost
+import edu.ucne.prioridadregistro.presentation.navigation.prioridad.PrioridadScreen
 import edu.ucne.prioridadregistro.ui.theme.PrioridadRegistroTheme
 import kotlinx.coroutines.launch
 
@@ -58,12 +61,10 @@ class MainActivity : ComponentActivity() {
         ).fallbackToDestructiveMigration().build()
         setContent {
             PrioridadRegistroTheme {
-                PrioridadScreen()
+                val navHost = rememberNavController()
+                PrioridadNavHost(prioridadDb, navHost)
             }
         }
     }
 
-    private suspend fun savePrioridad(prioridad: PrioridadEntity) {
-        prioridadDb.prioridadDao().save(prioridad)
-    }
 }
