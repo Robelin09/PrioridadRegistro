@@ -25,14 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import edu.ucne.prioridadregistro.data.database.PrioridadDb
 import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
 import kotlinx.coroutines.launch
 
 @Composable
-fun PrioridadScreen() {
+fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var errorMessage: String? by remember { mutableStateOf(null) }
@@ -72,21 +70,26 @@ fun PrioridadScreen() {
                         val dias = diasCompromiso.toIntOrNull()
                         if (descripcion.isBlank()) {
                             errorMessage = "La descripción no puede estar vacía"
-                        }
-                        if (dias == null || dias <= 0) {
+                        } else if (dias == null || dias <= 0) {
                             errorMessage = "Días compromiso debe ser un número válido"
                         } else {
                             scope.launch {
-                                savePrioridad(
-                                    PrioridadEntity(
+                                try {
+                                    // Crear la entidad
+                                    val prioridad = PrioridadEntity(
                                         descripcion = descripcion,
                                         diascompromiso = dias
                                     )
-                                )
-                                descripcion = ""
-                                diasCompromiso = ""
-                                errorMessage = null
-                                focusManager.clearFocus()
+                                    // Guardar en la base de datos
+                                    savePrioridad(prioridadDb, prioridad)
+                                    // Limpiar el formulario
+                                    descripcion = ""
+                                    diasCompromiso = ""
+                                    errorMessage = null
+                                    focusManager.clearFocus()
+                                } catch (e: Exception) {
+                                    errorMessage = "Error al guardar prioridad"
+                                }
                             }
                         }
                     }
@@ -107,14 +110,11 @@ fun PrioridadScreen() {
                     Text("Nuevo")
                 }
             }
-            val lifecycleOwner = LocalLifecycleOwner.current
-            val prioridadList by prioridadDb.prioridadDao().getAll()
-                .collectAsStateWithLifecycle(
-                    initialValue = emptyList(),
-                    lifecycleOwner = lifecycleOwner,
-                    minActiveState = Lifecycle.State.STARTED
-                )
             Spacer(modifier = Modifier.padding(8.dp))
         }
     }
+}
+
+private suspend fun savePrioridad(prioridadDb: PrioridadDb, prioridad: PrioridadEntity) {
+    prioridadDb.prioridadDao().save(prioridad)
 }
