@@ -75,14 +75,11 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
                         } else {
                             scope.launch {
                                 try {
-                                    // Crear la entidad
                                     val prioridad = PrioridadEntity(
                                         descripcion = descripcion,
                                         diascompromiso = dias
                                     )
-                                    // Guardar en la base de datos
                                     savePrioridad(prioridadDb, prioridad)
-                                    // Limpiar el formulario
                                     descripcion = ""
                                     diasCompromiso = ""
                                     errorMessage = null
@@ -114,7 +111,6 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
         }
     }
 }
-
 private suspend fun savePrioridad(prioridadDb: PrioridadDb, prioridad: PrioridadEntity) {
     prioridadDb.prioridadDao().save(prioridad)
 }
