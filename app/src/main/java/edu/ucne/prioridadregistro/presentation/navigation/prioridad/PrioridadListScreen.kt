@@ -1,5 +1,6 @@
 package edu.ucne.prioridadregistro.presentation.navigation.prioridad
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +28,12 @@ import androidx.compose.ui.unit.dp
 import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
 
 @Composable
-fun PrioridadListScreen(prioridadList: List<PrioridadEntity>, createPrioridad: () -> Unit) {
+fun PrioridadListScreen(
+    prioridadList: List<PrioridadEntity>,
+    createPrioridad: () -> Unit,
+    deletePrioridad: (PrioridadEntity) -> Unit,
+    onPrioridadClick: (Int) -> Unit
+) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -34,15 +43,14 @@ fun PrioridadListScreen(prioridadList: List<PrioridadEntity>, createPrioridad: (
                 Icon(Icons.Filled.Add, contentDescription = "Añadir Prioridad")
             }
         }
-    ) { paddingValues ->  // Añadir el contentPadding
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)  // Aplicar el paddingValues aquí
+                .padding(paddingValues)
         ) {
             Spacer(modifier = Modifier.height(35.dp))
             Text("Lista de Prioridades", style = MaterialTheme.typography.headlineMedium)
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -66,24 +74,26 @@ fun PrioridadListScreen(prioridadList: List<PrioridadEntity>, createPrioridad: (
                     color = Color.Gray
                 )
             }
-
             HorizontalDivider()
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(prioridadList) { prioridad ->
-                    PrioridadRow(prioridad)  // Pasar la variable aquí
+                    PrioridadRow(prioridad, deletePrioridad, onPrioridadClick)
                 }
             }
         }
     }
 }
-
 @Composable
-fun PrioridadRow(prioridad: PrioridadEntity) {  // Mover esta función fuera
+fun PrioridadRow(
+    prioridad: PrioridadEntity,
+    deletePrioridad: (PrioridadEntity) -> Unit,
+    onPrioridadClick: (Int) -> Unit
+) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable { onPrioridadClick(prioridad.prioridadid!!) }
     ) {
         Text(modifier = Modifier.weight(2f), text = prioridad.prioridadid.toString())
         Text(
@@ -92,6 +102,7 @@ fun PrioridadRow(prioridad: PrioridadEntity) {  // Mover esta función fuera
             style = MaterialTheme.typography.headlineSmall
         )
         Text(modifier = Modifier.weight(2f), text = prioridad.diascompromiso.toString())
+
     }
     HorizontalDivider()
 }
