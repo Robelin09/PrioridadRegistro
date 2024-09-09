@@ -1,4 +1,4 @@
-package edu.ucne.prioridadregistro.presentation.navigation.prioridad
+package edu.ucne.prioridadregistro.presentation.prioridad
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -70,7 +70,8 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
                         val dias = diasCompromiso.toIntOrNull()
                         if (descripcion.isBlank()) {
                             errorMessage = "La descripción no puede estar vacía"
-                        } else if (dias == null || dias <= 0) {
+                        }
+                        if (dias == null || dias <= 0) {
                             errorMessage = "Días compromiso debe ser un número válido"
                         } else {
                             scope.launch {

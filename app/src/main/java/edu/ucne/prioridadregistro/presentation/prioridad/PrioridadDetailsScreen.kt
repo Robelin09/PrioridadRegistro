@@ -1,4 +1,4 @@
-package edu.ucne.prioridadregistro.presentation.navigation.prioridad
+package edu.ucne.prioridadregistro.presentation.prioridad
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -88,7 +87,8 @@ fun PrioridadDetailsScreen(
                             val dias = diasCompromiso.toIntOrNull()
                             if (descripcion.isBlank()) {
                                 errorMessage = "La descripción no puede estar vacía"
-                            } else if (dias == null || dias <= 0) {
+                            }
+                            if (dias == null || dias <= 0) {
                                 errorMessage = "Días compromiso debe ser un número válido"
                             } else {
                                 scope.launch {
