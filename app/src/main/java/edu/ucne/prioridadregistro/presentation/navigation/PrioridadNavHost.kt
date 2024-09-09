@@ -7,15 +7,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import edu.ucne.prioridadregistro.data.database.PrioridadDb
-import edu.ucne.prioridadregistro.presentation.navigation.prioridad.PrioridadDetailsScreen
-import edu.ucne.prioridadregistro.presentation.navigation.prioridad.PrioridadListScreen
-import edu.ucne.prioridadregistro.presentation.navigation.prioridad.PrioridadScreen
+import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadDetailsScreen
+import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadListScreen
+import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadScreen
 import kotlinx.coroutines.launch
 
 @Composable
