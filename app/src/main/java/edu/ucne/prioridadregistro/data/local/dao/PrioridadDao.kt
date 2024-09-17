@@ -1,10 +1,10 @@
-package edu.ucne.prioridadregistro.data.dao
+package edu.ucne.prioridadregistro.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,7 +15,7 @@ interface PrioridadDao {
         """
             SELECT * 
             FROM Prioridades
-            WHERE prioridadid =:id
+            WHERE prioridadId =:id
             LIMIT 1
         """
     )
@@ -34,5 +34,4 @@ interface PrioridadDao {
     suspend fun delete (prioridad: PrioridadEntity)
     @Query("SELECT * FROM Prioridades")
     fun getAll(): Flow<List<PrioridadEntity>>
-
 }

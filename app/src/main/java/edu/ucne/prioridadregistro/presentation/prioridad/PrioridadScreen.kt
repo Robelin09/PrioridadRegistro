@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -17,26 +18,38 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import edu.ucne.prioridadregistro.data.database.PrioridadDb
-import edu.ucne.prioridadregistro.data.entities.PrioridadEntity
-import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
-    var descripcion by remember { mutableStateOf("") }
-    var diasCompromiso by remember { mutableStateOf("") }
-    var errorMessage: String? by remember { mutableStateOf(null) }
-    val focusManager = LocalFocusManager.current
-    val scope = rememberCoroutineScope()
-
+fun PrioridadScreen(
+   viewModel: PrioridadViewModel = hiltViewModel(),
+   goBack: () -> Unit
+)
+{
+val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    PrioridadBodyScreen(
+        uiState = uiState,
+        onDescripcionChange = viewModel::onDescripcionChange,
+        onDiasCompromisoChange = viewModel::onDiasCompromisoChange,
+        onSavePrioridad = viewModel::save,
+        onNuevoPrioridad = viewModel::nuevo,
+        goBack = goBack
+    )
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PrioridadBodyScreen(
+    uiState: Uistate,
+    onDescripcionChange: (String) -> Unit,
+    onDiasCompromisoChange: (Int) -> Unit,
+    onSavePrioridad: () -> Unit,
+    onNuevoPrioridad: () -> Unit,
+    goBack: () -> Unit
+){
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -46,18 +59,21 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
         ) {
             OutlinedTextField(
                 label = { Text("Descripción") },
-                value = descripcion,
-                onValueChange = { descripcion = it },
+                value = uiState.descripcion,
+                onValueChange = onDescripcionChange,
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
                 label = { Text("Días Compromiso") },
-                value = diasCompromiso,
-                onValueChange = { diasCompromiso = it },
-                modifier = Modifier.fillMaxWidth()
+                value = uiState.diasCompromiso.toString(),
+                onValueChange = { newValue ->
+                    val diasCompromiso = newValue.toIntOrNull() ?: 0
+                    onDiasCompromisoChange(diasCompromiso)
+                }
             )
             Spacer(modifier = Modifier.padding(2.dp))
-            errorMessage?.let {
+            uiState.errorMessage?.let {
                 Text(text = it, color = Color.Red)
             }
             Row(
@@ -67,29 +83,7 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val dias = diasCompromiso.toIntOrNull()
-                        if (descripcion.isBlank()) {
-                            errorMessage = "La descripción no puede estar vacía"
-                        }
-                        if (dias == null || dias <= 0) {
-                            errorMessage = "Días compromiso debe ser un número válido"
-                        } else {
-                            scope.launch {
-                                try {
-                                    val prioridad = PrioridadEntity(
-                                        descripcion = descripcion,
-                                        diascompromiso = dias
-                                    )
-                                    savePrioridad(prioridadDb, prioridad)
-                                    descripcion = ""
-                                    diasCompromiso = ""
-                                    errorMessage = null
-                                    focusManager.clearFocus()
-                                } catch (e: Exception) {
-                                    errorMessage = "Error al guardar prioridad"
-                                }
-                            }
-                        }
+                        onSavePrioridad()
                     }
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Guardar")
@@ -98,10 +92,7 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        descripcion = ""
-                        diasCompromiso = ""
-                        errorMessage = null
-                        focusManager.clearFocus()
+                        onNuevoPrioridad()
                     }
                 ) {
                     Icon(Icons.Default.Create, contentDescription = "Nuevo")
@@ -111,7 +102,4 @@ fun PrioridadScreen(prioridadDb: PrioridadDb, goBack: () -> Unit) {
             Spacer(modifier = Modifier.padding(8.dp))
         }
     }
-}
-private suspend fun savePrioridad(prioridadDb: PrioridadDb, prioridad: PrioridadEntity) {
-    prioridadDb.prioridadDao().save(prioridad)
 }

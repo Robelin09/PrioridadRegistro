@@ -1,4 +1,4 @@
-package edu.ucne.prioridadregistro.presentation.prioridad
+package edu.ucne.prioridadregistro.presentation.ticket
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -31,41 +31,47 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.data.local.entities.TicketEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun PrioridadListScreen(
+fun TicketListScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    viewModel: PrioridadViewModel = hiltViewModel(),
-    onPrioridadClick: (Int) -> Unit,
-    createPrioridad: () -> Unit,
+    viewModel: TicketViewModel = hiltViewModel(),
+    onTicketClick: (Int) -> Unit,
+    createTicket: () -> Unit,
 
-) {
-val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    PrioridadListBodyScreen(
+    ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    TicketListBodyScreen(
         drawerState = drawerState,
         scope = scope,
-        uiState,
-        onPrioridadClick,
-        createPrioridad,
-    )
+        uiState = uiState,
+        onTicketClick = onTicketClick,
+        createTicket = createTicket,
+        prioridades = uiState.prioridades,
+
+        )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrioridadListBodyScreen(
+fun TicketListBodyScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    uiState: Uistate,
-    onPrioridadClick: (Int) -> Unit,
-    createPrioridad: () -> Unit,
+    uiState: TicketUiState,
+    onTicketClick: (Int) -> Unit,
+    createTicket: () -> Unit,
+    prioridades: List<PrioridadEntity>
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = "Lista de Prioridades")
+                    Text(text = "Lista de Tickets")
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -79,39 +85,46 @@ fun PrioridadListBodyScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = createPrioridad,
+                onClick = createTicket,
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Añadir Prioridad")
+                Icon(Icons.Filled.Add, contentDescription = "Añadir Ticket")
             }
-        }
-    ) { paddingValues ->
+        },
+
+        ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Spacer(modifier = Modifier.height(35.dp))
-            Text("Lista de Prioridades", style = MaterialTheme.typography.headlineMedium)
+            Text("Lista de Tickets", style = MaterialTheme.typography.headlineMedium)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
                 Text(
-                    modifier = Modifier.weight(2f),
+                    modifier = Modifier.weight(1f),
                     text = "ID",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "Descripción",
+                    text = "Cliente",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "Días Compromiso",
+                    text = "Asunto",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "Prioridad",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -120,32 +133,45 @@ fun PrioridadListBodyScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(uiState.prioridades) { prioridad ->
-                    PrioridadRow(prioridad, onPrioridadClick)
+                items(uiState.tickets) { ticket ->
+                    TicketRow(
+                        ticket = ticket,
+                        onTicketClick = onTicketClick,
+                        prioridades = prioridades
+                    )
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun PrioridadRow(
-    prioridad: PrioridadEntity,
-    onPrioridadClick: (Int) -> Unit
+fun TicketRow(
+    ticket: TicketEntity,
+    onTicketClick: (Int) -> Unit,
+    prioridades: List<PrioridadEntity>
 ) {
+    val prioridad = prioridades.find { it.prioridadId == ticket.prioridadId }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable { onPrioridadClick(prioridad.prioridadId!!) }
+        modifier = Modifier
+            .clickable { onTicketClick(ticket.ticketId!!) }
+            .padding(vertical = 8.dp)
     ) {
-        Text(modifier = Modifier.weight(2f), text = prioridad.prioridadId.toString())
+        Text(modifier = Modifier.weight(1f), text = ticket.ticketId.toString())
         Text(
             modifier = Modifier.weight(2f),
-            text = prioridad.descripcion,
+            text = ticket.cliente,
             style = MaterialTheme.typography.headlineSmall
         )
-        Text(modifier = Modifier.weight(2f), text = prioridad.diasCompromiso.toString())
+        Text(modifier = Modifier.weight(2f), text = ticket.asunto)
 
+        Text(
+            modifier = Modifier.weight(1f),
+            text = prioridad?.descripcion ?: "N/A",
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
     HorizontalDivider()
 }

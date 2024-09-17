@@ -1,4 +1,4 @@
-package edu.ucne.prioridadregistro.data.entities
+package edu.ucne.prioridadregistro.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 data class PrioridadEntity(
     @PrimaryKey
-    val prioridadid: Int? = null,
+    val prioridadId: Int? = null,
     val descripcion: String = "",
-    val diascompromiso: Int?
+    val diasCompromiso: Int?
 )
