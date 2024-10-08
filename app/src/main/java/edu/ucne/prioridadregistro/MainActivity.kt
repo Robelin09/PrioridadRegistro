@@ -27,7 +27,6 @@ class MainActivity : ComponentActivity() {
                 val navHost = rememberNavController()
                 val items = NavigationItems()
                 PrioridadNavHost(navHost, items)
-
             }
         }
     }
@@ -44,5 +43,15 @@ fun NavigationItems():List<NavigationItem>{
             SelectIcon = Icons.Filled.Build,
             UnSelectIcon = Icons.Outlined.Build
         ),
+        NavigationItem(
+            titulo = "Clientes",
+            SelectIcon = Icons.Filled.Info,
+            UnSelectIcon = Icons.Outlined.Info
+        ),
+        NavigationItem(
+            titulo = "Sistemas",
+            SelectIcon = Icons.Filled.Build,
+            UnSelectIcon = Icons.Outlined.Build
+        )
     )
 }
