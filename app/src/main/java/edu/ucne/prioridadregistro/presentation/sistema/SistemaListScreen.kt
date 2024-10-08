@@ -1,4 +1,4 @@
-package edu.ucne.prioridadregistro.presentation.ticket
+package edu.ucne.prioridadregistro.presentation.sistema
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -30,67 +30,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
-import edu.ucne.prioridadregistro.data.local.entities.TicketEntity
-import edu.ucne.prioridadregistro.data.remote.dto.ClienteDto
-import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
-import edu.ucne.prioridadregistro.data.remote.dto.TicketDto
+import edu.ucne.prioridadregistro.data.remote.dto.SistemaDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun TicketListScreen(
+fun SistemaListScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    viewModel: TicketViewModel = hiltViewModel(),
-    onTicketClick: (Int) -> Unit,
-    createTicket: () -> Unit
+    viewModel: SistemaViewModel = hiltViewModel(),
+    onSistemaClick: (Int) -> Unit,
+    createSistema: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    TicketListBodyScreen(
+    SistemaListBodyScreen(
         drawerState = drawerState,
         scope = scope,
-        uiState = uiState,
-        onTicketClick = onTicketClick,
-        createTicket = createTicket,
-        prioridades = uiState.prioridades,
-        clientes = uiState.clientes
+        uiState,
+        onSistemaClick,
+        createSistema
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketListBodyScreen(
+fun SistemaListBodyScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    uiState: TicketUiState,
-    onTicketClick: (Int) -> Unit,
-    createTicket: () -> Unit,
-    prioridades: List<PrioridadDto>,
-    clientes: List<ClienteDto>
+    uiState: Uistate,
+    onSistemaClick: (Int) -> Unit,
+    createSistema: () -> Unit
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Lista de Tickets") },
+                title = {
+                    Text(text = "Lista de Sistemas")
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         scope.launch {
                             drawerState.open()
                         }
                     }) {
-                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Ir al Menu")
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Ir al Menú")
                     }
-                }
-            )
+                })
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = createTicket,
+                onClick = createSistema,
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Añadir Ticket")
+                Icon(Icons.Filled.Add, contentDescription = "Añadir Sistema")
             }
         }
     ) { paddingValues ->
@@ -100,7 +92,7 @@ fun TicketListBodyScreen(
                 .padding(paddingValues)
         ) {
             Spacer(modifier = Modifier.height(35.dp))
-            Text("Lista de Tickets", style = MaterialTheme.typography.headlineMedium)
+            Text("Lista de Sistemas", style = MaterialTheme.typography.headlineMedium)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -113,19 +105,7 @@ fun TicketListBodyScreen(
                 )
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "Cliente",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Text(
-                    modifier = Modifier.weight(2f),
-                    text = "Asunto",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = "Prioridad",
+                    text = "Nombre del Sistema",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -134,13 +114,8 @@ fun TicketListBodyScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(uiState.tickets) { ticket ->
-                    TicketRow(
-                        ticket = ticket,
-                        onTicketClick = onTicketClick,
-                        prioridades = prioridades,
-                        clientes = clientes // Pasamos la lista de clientes
-                    )
+                items(uiState.sistemas) { sistema ->
+                    SistemaRow(sistema, onSistemaClick)
                 }
             }
         }
@@ -148,33 +123,21 @@ fun TicketListBodyScreen(
 }
 
 @Composable
-fun TicketRow(
-    ticket: TicketDto,
-    onTicketClick: (Int) -> Unit,
-    prioridades: List<PrioridadDto>,
-    clientes: List<ClienteDto>
+fun SistemaRow(
+    sistema: SistemaDto,
+    onSistemaClick: (Int) -> Unit
 ) {
-    val prioridad = prioridades.find { it.prioridadId == ticket.prioridadId }
-    val cliente = clientes.find { it.clienteId == ticket.clienteId }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clickable { onTicketClick(ticket.ticketId!!) }
-            .padding(vertical = 8.dp)
+            .clickable { onSistemaClick(sistema.sistemaId!!) }
+            .padding(8.dp)
     ) {
-        Text(modifier = Modifier.weight(1f), text = ticket.ticketId.toString())
-        Text(
-            modifier = Modifier.weight(2f),
-            text = cliente?.nombres ?: "N/A", // Mostramos el nombre del cliente o "N/A"
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Text(modifier = Modifier.weight(2f), text = ticket.asunto)
-
+        Text(modifier = Modifier.weight(1f), text = sistema.sistemaId.toString())
         Text(
             modifier = Modifier.weight(1f),
-            text = prioridad?.descripcion ?: "N/A",
-            style = MaterialTheme.typography.bodyMedium
+            text = sistema.nombredeSistema,
+            style = MaterialTheme.typography.headlineSmall
         )
     }
     HorizontalDivider()

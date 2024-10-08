@@ -24,12 +24,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import edu.ucne.prioridadregistro.NavigationItem
 import edu.ucne.prioridadregistro.data.local.database.PrioridadDb
+import edu.ucne.prioridadregistro.presentation.cliente.ClienteDetailsScreen
+import edu.ucne.prioridadregistro.presentation.cliente.ClienteListScreen
+import edu.ucne.prioridadregistro.presentation.cliente.ClienteScreen
 import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadDetailsScreen
 import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadListScreen
 import edu.ucne.prioridadregistro.presentation.prioridad.PrioridadScreen
+import edu.ucne.prioridadregistro.presentation.sistema.SistemaDetailsScreen
+import edu.ucne.prioridadregistro.presentation.sistema.SistemaListScreen
+import edu.ucne.prioridadregistro.presentation.sistema.SistemaScreen
 import edu.ucne.prioridadregistro.presentation.ticket.TicketDetailsScreen
 import edu.ucne.prioridadregistro.presentation.ticket.TicketListScreen
 import edu.ucne.prioridadregistro.presentation.ticket.TicketScreen
+//import edu.ucne.prioridadregistro.presentation.ticket.TicketDetailsScreen
+//import edu.ucne.prioridadregistro.presentation.ticket.TicketListScreen
+//import edu.ucne.prioridadregistro.presentation.ticket.TicketScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,6 +64,8 @@ fun PrioridadNavHost(
                             when(navigationItem.titulo){
                                 "Prioridades" -> {navHostController.navigate(Screen.PrioridadList)}
                                 "Tickets" -> {navHostController.navigate(Screen.TicketList)}
+                                "Clientes" -> {navHostController.navigate(Screen.ClienteList)}
+                                "Sistemas" -> {navHostController.navigate(Screen.SistemaList)}
                             }
                         }
                     )
@@ -65,7 +76,7 @@ fun PrioridadNavHost(
     ) {
         NavHost(
             navController = navHostController,
-            startDestination = Screen.TicketList
+            startDestination = Screen.ClienteList
         ) {
             composable<Screen.PrioridadList> {
                 PrioridadListScreen(
@@ -120,6 +131,69 @@ fun PrioridadNavHost(
                 val args = it.toRoute<Screen.TicketDetails>()
                 TicketDetailsScreen(
                     ticketId = args.ticketId,
+                    goBack = { navHostController.navigateUp() }
+                )
+            }
+
+            composable<Screen.ClienteDetails> {
+                val args = it.toRoute<Screen.ClienteDetails>()
+                ClienteDetailsScreen(
+                    clienteId = args.clienteId,
+                    goBack = { navHostController.navigateUp() }
+                )
+            }
+
+            composable<Screen.Cliente>{
+                val args = it.toRoute<Screen.Cliente>()
+                ClienteScreen(
+                    goBack={
+                        navHostController.navigateUp()
+                    }
+                )
+
+            }
+
+
+            composable<Screen.ClienteList>{
+                ClienteListScreen(
+                    drawerState = drawerState,
+                    scope = scope,
+                    createCliente = {
+                        navHostController.navigate(Screen.Cliente(0))
+                    },
+                    onClienteClick = {
+                        navHostController.navigate(Screen.ClienteDetails(it))
+                    }
+
+                )
+            }
+
+            composable<Screen.SistemaList>{
+                SistemaListScreen(
+                    drawerState = drawerState,
+                    scope = scope,
+                    createSistema = {
+                        navHostController.navigate(Screen.Sistema(0))
+                    },
+                    onSistemaClick = {
+                        navHostController.navigate(Screen.SistemaDetails(it))
+                    }
+                )
+            }
+
+            composable<Screen.Sistema>{
+                val args = it.toRoute<Screen.Sistema>()
+                SistemaScreen(
+                    goBack={
+                        navHostController.navigateUp()
+                    }
+                )
+            }
+
+            composable<Screen.SistemaDetails>{
+                val args = it.toRoute<Screen.SistemaDetails>()
+                SistemaDetailsScreen(
+                    sistemaId = args.sistemaId,
                     goBack = { navHostController.navigateUp() }
                 )
             }

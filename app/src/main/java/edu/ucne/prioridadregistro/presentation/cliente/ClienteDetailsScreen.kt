@@ -1,4 +1,5 @@
-package edu.ucne.prioridadregistro.presentation.ticket
+package edu.ucne.prioridadregistro.presentation.cliente
+
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,49 +25,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.text.SimpleDateFormat
-import java.util.Date
 
 @Composable
-fun TicketDetailsScreen(
-    ticketId: Int,
-    viewModel: TicketViewModel = hiltViewModel(),
+fun ClienteDetailsScreen(
+    clienteId: Int,
+    viewModel: ClienteViewModel = hiltViewModel(),
     goBack: () -> Unit
 ) {
-    LaunchedEffect(ticketId) {
-        viewModel.select(ticketId)
+    LaunchedEffect(clienteId) {
+        viewModel.select(clienteId)
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    TicketDetailsBodyScreen(
+    ClienteDetailsBodyScreen(
         uiState = uiState,
-        onClienteChange = viewModel::onClienteChange,
-        onSistemaChange = viewModel::onSistemaChange,
-        onSolicitadoPorChange = viewModel::onSolicitadoPorChange,
-        onAsuntoChange = viewModel::onAsuntoChange,
-        onDescripcionChange = viewModel::onDescripcionChange,
-        onPrioridadChange = viewModel::onPrioridadChange,
-        onSaveTicket = viewModel::save,
-        onDeleteTicket = viewModel::delete,
+        onNombresChange = viewModel::onNombresChange,
+        onTelefonoChange = viewModel::onTelefonoChange,
+        onCelularChange = viewModel::onCelularChange,
+        onRncChange = viewModel::onRncChange,
+        onEmailChange = viewModel::onEmailChange,
+        onDireccionChange = viewModel::onDireccionChange,
+        onSaveCliente = viewModel::save,
+        onDeleteCliente = viewModel::delete,
         goBack = goBack
     )
 }
 
 @Composable
-fun TicketDetailsBodyScreen(
-    uiState: TicketUiState,
-    onClienteChange: (Int) -> Unit,
-    onSistemaChange: (Int) -> Unit,
-    onSolicitadoPorChange: (String) -> Unit,
-    onAsuntoChange: (String) -> Unit,
-    onDescripcionChange: (String) -> Unit,
-    onPrioridadChange: (Int) -> Unit,
-    onSaveTicket: () -> Unit,
-    onDeleteTicket: () -> Unit,
+fun ClienteDetailsBodyScreen(
+    uiState: Uistate,
+    onNombresChange: (String) -> Unit,
+    onTelefonoChange: (String) -> Unit,
+    onCelularChange: (String) -> Unit,
+    onRncChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onDireccionChange: (String) -> Unit,
+    onSaveCliente: () -> Unit,
+    onDeleteCliente: () -> Unit,
     goBack: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy")
-    val formattedDate = dateFormat.format(uiState.fecha ?: Date())
-
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -74,43 +70,42 @@ fun TicketDetailsBodyScreen(
                 .padding(8.dp)
                 .fillMaxSize()
         ) {
-            // Cliente Dropdown
-            ClienteDropdown(uiState = uiState, onClienteChange = onClienteChange)
-
-            // Sistema Dropdown
-            SistemaDropdown(uiState = uiState, onSistemaChange = onSistemaChange)
-
             OutlinedTextField(
-                label = { Text("Solicitado por") },
-                value = uiState.solicitadoPor,
-                onValueChange = onSolicitadoPorChange,
+                label = { Text("Nombres") },
+                value = uiState.nombres,
+                onValueChange = onNombresChange,
                 modifier = Modifier.fillMaxWidth()
             )
-
             OutlinedTextField(
-                label = { Text("Fecha") },
-                value = formattedDate,
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-
-            OutlinedTextField(
-                label = { Text("Asunto") },
-                value = uiState.asunto,
-                onValueChange = onAsuntoChange,
+                label = { Text("Teléfono") },
+                value = uiState.telefono,
+                onValueChange = onTelefonoChange,
                 modifier = Modifier.fillMaxWidth()
             )
-
             OutlinedTextField(
-                label = { Text("Descripción") },
-                value = uiState.descripcion,
-                onValueChange = onDescripcionChange,
+                label = { Text("Celular") },
+                value = uiState.celular,
+                onValueChange = onCelularChange,
                 modifier = Modifier.fillMaxWidth()
             )
-
-            // Prioridad Dropdown
-            PrioridadDropdown(uiState = uiState, onPrioridadChange = onPrioridadChange)
+            OutlinedTextField(
+                label = { Text("RNC") },
+                value = uiState.rnc,
+                onValueChange = onRncChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                label = { Text("Email") },
+                value = uiState.email,
+                onValueChange = onEmailChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                label = { Text("Dirección") },
+                value = uiState.direccion,
+                onValueChange = onDireccionChange,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -124,14 +119,16 @@ fun TicketDetailsBodyScreen(
             ) {
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
-                    onClick = { onSaveTicket() }
+                    onClick = {
+                        onSaveCliente()
+                    }
                 ) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Guardar")
+                    Icon(Icons.Default.Refresh, contentDescription = "Editar")
                     Text("Actualizar")
                 }
                 OutlinedButton(
                     onClick = {
-                        onDeleteTicket()
+                        onDeleteCliente()
                         goBack()
                     },
                     modifier = Modifier.weight(1f)

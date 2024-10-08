@@ -1,4 +1,5 @@
-package edu.ucne.prioridadregistro.presentation.ticket
+package edu.ucne.prioridadregistro.presentation.cliente
+
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -30,67 +31,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
-import edu.ucne.prioridadregistro.data.local.entities.TicketEntity
 import edu.ucne.prioridadregistro.data.remote.dto.ClienteDto
-import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
-import edu.ucne.prioridadregistro.data.remote.dto.TicketDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun TicketListScreen(
+fun ClienteListScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    viewModel: TicketViewModel = hiltViewModel(),
-    onTicketClick: (Int) -> Unit,
-    createTicket: () -> Unit
+    viewModel: ClienteViewModel = hiltViewModel(),
+    onClienteClick: (Int) -> Unit,
+    createCliente: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    TicketListBodyScreen(
+    ClienteListBodyScreen(
         drawerState = drawerState,
         scope = scope,
-        uiState = uiState,
-        onTicketClick = onTicketClick,
-        createTicket = createTicket,
-        prioridades = uiState.prioridades,
-        clientes = uiState.clientes
+        uiState,
+        onClienteClick,
+        createCliente
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketListBodyScreen(
+fun ClienteListBodyScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    uiState: TicketUiState,
-    onTicketClick: (Int) -> Unit,
-    createTicket: () -> Unit,
-    prioridades: List<PrioridadDto>,
-    clientes: List<ClienteDto>
+    uiState: Uistate,
+    onClienteClick: (Int) -> Unit,
+    createCliente: () -> Unit
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Lista de Tickets") },
+                title = {
+                    Text(text = "Lista de Clientes")
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         scope.launch {
                             drawerState.open()
                         }
                     }) {
-                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Ir al Menu")
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "Ir al Menú")
                     }
-                }
-            )
+                })
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = createTicket,
+                onClick = createCliente,
                 modifier = Modifier.padding(16.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Añadir Ticket")
+                Icon(Icons.Filled.Add, contentDescription = "Añadir Cliente")
             }
         }
     ) { paddingValues ->
@@ -100,32 +93,26 @@ fun TicketListBodyScreen(
                 .padding(paddingValues)
         ) {
             Spacer(modifier = Modifier.height(35.dp))
-            Text("Lista de Tickets", style = MaterialTheme.typography.headlineMedium)
+            Text("Lista de Clientes", style = MaterialTheme.typography.headlineMedium)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
                 Text(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.5f),
                     text = "ID",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
                 Text(
-                    modifier = Modifier.weight(2f),
-                    text = "Cliente",
+                    modifier = Modifier.weight(2.5f),
+                    text = "Nombre",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
                 Text(
                     modifier = Modifier.weight(2f),
-                    text = "Asunto",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = "Prioridad",
+                    text = "Teléfono",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -134,13 +121,8 @@ fun TicketListBodyScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(uiState.tickets) { ticket ->
-                    TicketRow(
-                        ticket = ticket,
-                        onTicketClick = onTicketClick,
-                        prioridades = prioridades,
-                        clientes = clientes // Pasamos la lista de clientes
-                    )
+                items(uiState.clientes) { cliente ->
+                    ClienteRow(cliente, onClienteClick)
                 }
             }
         }
@@ -148,34 +130,24 @@ fun TicketListBodyScreen(
 }
 
 @Composable
-fun TicketRow(
-    ticket: TicketDto,
-    onTicketClick: (Int) -> Unit,
-    prioridades: List<PrioridadDto>,
-    clientes: List<ClienteDto>
+fun ClienteRow(
+    cliente: ClienteDto,
+    onClienteClick: (Int) -> Unit
 ) {
-    val prioridad = prioridades.find { it.prioridadId == ticket.prioridadId }
-    val cliente = clientes.find { it.clienteId == ticket.clienteId }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .clickable { onTicketClick(ticket.ticketId!!) }
-            .padding(vertical = 8.dp)
+            .clickable { onClienteClick(cliente.clienteId!!) }
+            .padding(8.dp)
     ) {
-        Text(modifier = Modifier.weight(1f), text = ticket.ticketId.toString())
+        Text(modifier = Modifier.weight(1.5f), text = cliente.clienteId.toString())
         Text(
-            modifier = Modifier.weight(2f),
-            text = cliente?.nombres ?: "N/A", // Mostramos el nombre del cliente o "N/A"
+            modifier = Modifier.weight(2.5f),
+            text = cliente.nombres,
             style = MaterialTheme.typography.headlineSmall
         )
-        Text(modifier = Modifier.weight(2f), text = ticket.asunto)
+        Text(modifier = Modifier.weight(2f), text = cliente.telefono)
 
-        Text(
-            modifier = Modifier.weight(1f),
-            text = prioridad?.descripcion ?: "N/A",
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
     HorizontalDivider()
 }
