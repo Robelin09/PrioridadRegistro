@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
 import edu.ucne.prioridadregistro.data.repository.PrioridadRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,17 +71,17 @@ class PrioridadViewModel @Inject constructor(
             it.copy(diasCompromiso = diasCompromiso)
         }
     }
-    fun delete () {
-        viewModelScope.launch{
-            prioridadRepository.delete(_uiState.value.toEntity())
+    fun delete() {
+        viewModelScope.launch {
+            prioridadRepository.delete(_uiState.value.prioridadId!!)
+            nuevo()
         }
     }
     private fun getPrioridades(){
         viewModelScope.launch{
-            prioridadRepository.getPrioridades().collect {prioridad ->
-                _uiState.update{
-                    it.copy(prioridades = prioridad)
-                }
+         val Prioridades = prioridadRepository.getPrioridades()
+            _uiState.update{
+                it.copy(prioridades = Prioridades)
             }
         }
     }
@@ -90,9 +91,9 @@ data class Uistate(
     val descripcion : String = "",
     val diasCompromiso : Int = 0,
     val errorMessage : String? = null,
-    val prioridades : List<PrioridadEntity> = emptyList()
+    val prioridades : List<PrioridadDto> = emptyList()
 )
-fun Uistate.toEntity() = PrioridadEntity(
+fun Uistate.toEntity() = PrioridadDto(
     prioridadId = prioridadId,
     descripcion = descripcion,
     diasCompromiso = diasCompromiso
