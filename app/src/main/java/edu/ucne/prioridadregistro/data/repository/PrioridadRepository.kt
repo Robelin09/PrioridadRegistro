@@ -2,16 +2,19 @@ package edu.ucne.prioridadregistro.data.repository
 
 import edu.ucne.prioridadregistro.data.local.dao.PrioridadDao
 import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.data.remote.PrioridadApi
+import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
 import javax.inject.Inject
 
 class PrioridadRepository @Inject constructor(
-    private val prioridadDao: PrioridadDao
+    private val prioridadApi: PrioridadApi
 ) {
-    suspend fun save(prioridad: PrioridadEntity) = prioridadDao.save(prioridad)
+    suspend fun save(prioridad: PrioridadDto) = prioridadApi.savePrioridad(prioridad)
 
-    suspend fun getPrioridad(id: Int) = prioridadDao.find(id)
+    suspend fun getPrioridad(id: Int) = prioridadApi.getPrioridad(id)
 
-    suspend fun delete(prioridad: PrioridadEntity) = prioridadDao.delete(prioridad)
+    suspend fun delete(id: Int) = prioridadApi.deletePrioridad(id)
 
-    fun getPrioridades() = prioridadDao.getAll()
+
+    suspend fun getPrioridades() =  prioridadApi.getAllPrioridad()
 }
