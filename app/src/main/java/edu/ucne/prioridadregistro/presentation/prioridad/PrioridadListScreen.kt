@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -131,7 +132,7 @@ fun PrioridadListBodyScreen(
 
 @Composable
 fun PrioridadRow(
-    prioridad: PrioridadEntity,
+    prioridad: PrioridadDto,
     onPrioridadClick: (Int) -> Unit
 ) {
     Row(
