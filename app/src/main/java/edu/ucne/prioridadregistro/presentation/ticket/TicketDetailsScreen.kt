@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -22,14 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Composable
 fun TicketDetailsScreen(
@@ -44,23 +40,23 @@ fun TicketDetailsScreen(
     TicketDetailsBodyScreen(
         uiState = uiState,
         onClienteChange = viewModel::onClienteChange,
+        onSistemaChange = viewModel::onSistemaChange,
+        onSolicitadoPorChange = viewModel::onSolicitadoPorChange,
         onAsuntoChange = viewModel::onAsuntoChange,
         onDescripcionChange = viewModel::onDescripcionChange,
         onPrioridadChange = viewModel::onPrioridadChange,
         onSaveTicket = viewModel::save,
-        onDeleteTicket = {
-            viewModel.delete()
-            goBack()
-        },
+        onDeleteTicket = viewModel::delete,
         goBack = goBack
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TicketDetailsBodyScreen(
     uiState: TicketUiState,
-    onClienteChange: (String) -> Unit,
+    onClienteChange: (Int) -> Unit,
+    onSistemaChange: (Int) -> Unit,
+    onSolicitadoPorChange: (String) -> Unit,
     onAsuntoChange: (String) -> Unit,
     onDescripcionChange: (String) -> Unit,
     onPrioridadChange: (Int) -> Unit,
@@ -68,6 +64,9 @@ fun TicketDetailsBodyScreen(
     onDeleteTicket: () -> Unit,
     goBack: () -> Unit
 ) {
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy")
+    val formattedDate = dateFormat.format(uiState.fecha ?: Date())
+
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -75,63 +74,45 @@ fun TicketDetailsBodyScreen(
                 .padding(8.dp)
                 .fillMaxSize()
         ) {
+            // Cliente Dropdown
+            ClienteDropdown(uiState = uiState, onClienteChange = onClienteChange)
+
+            // Sistema Dropdown
+            SistemaDropdown(uiState = uiState, onSistemaChange = onSistemaChange)
+
             OutlinedTextField(
-                label = { Text("Cliente") },
-                value = uiState.cliente,
-                onValueChange = onClienteChange,
+                label = { Text("Solicitado por") },
+                value = uiState.solicitadoPor,
+                onValueChange = onSolicitadoPorChange,
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
+                label = { Text("Fecha") },
+                value = formattedDate,
+                onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Asunto") },
-                value = uiState.asunto,
-                onValueChange = onAsuntoChange
+                readOnly = true
             )
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Descripción") },
-                value = uiState.descripcion,
-                onValueChange = onDescripcionChange
+                label = { Text("Asunto") },
+                value = uiState.asunto,
+                onValueChange = onAsuntoChange,
+                modifier = Modifier.fillMaxWidth()
             )
 
+            OutlinedTextField(
+                label = { Text("Descripción") },
+                value = uiState.descripcion,
+                onValueChange = onDescripcionChange,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Prioridad Dropdown
+            PrioridadDropdown(uiState = uiState, onPrioridadChange = onPrioridadChange)
+
             Spacer(modifier = Modifier.height(16.dp))
-
-            var expanded by remember { mutableStateOf(false) }
-            var selectedText by remember { mutableStateOf("Selecciona Prioridad") }
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = {
-                    expanded = !expanded
-                }
-            ) {
-                OutlinedTextField(
-                    value = selectedText,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                    readOnly = true,
-                    label = { Text("Prioridad") }
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    uiState.prioridades.forEach { prioridad ->
-                        DropdownMenuItem(
-                            text = { Text(prioridad.descripcion) },
-                            onClick = {
-                                selectedText = prioridad.descripcion
-                                prioridad.prioridadId?.let { onPrioridadChange(it) }
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
 
             uiState.errorMessage?.let {
                 Text(text = it, color = Color.Red)
@@ -143,17 +124,15 @@ fun TicketDetailsBodyScreen(
             ) {
                 OutlinedButton(
                     modifier = Modifier.weight(1f),
-                    onClick = {
-                        onSaveTicket()
-                    }
+                    onClick = { onSaveTicket() }
                 ) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
+                    Icon(Icons.Default.Refresh, contentDescription = "Guardar")
                     Text("Actualizar")
                 }
-
                 OutlinedButton(
                     onClick = {
                         onDeleteTicket()
+                        goBack()
                     },
                     modifier = Modifier.weight(1f)
                 ) {
