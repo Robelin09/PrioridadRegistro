@@ -32,6 +32,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadregistro.data.local.entities.PrioridadEntity
 import edu.ucne.prioridadregistro.data.local.entities.TicketEntity
+import edu.ucne.prioridadregistro.data.remote.dto.ClienteDto
+import edu.ucne.prioridadregistro.data.remote.dto.PrioridadDto
+import edu.ucne.prioridadregistro.data.remote.dto.TicketDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -41,9 +44,8 @@ fun TicketListScreen(
     scope: CoroutineScope,
     viewModel: TicketViewModel = hiltViewModel(),
     onTicketClick: (Int) -> Unit,
-    createTicket: () -> Unit,
-
-    ) {
+    createTicket: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TicketListBodyScreen(
@@ -53,8 +55,8 @@ fun TicketListScreen(
         onTicketClick = onTicketClick,
         createTicket = createTicket,
         prioridades = uiState.prioridades,
-
-        )
+        clientes = uiState.clientes
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,14 +67,13 @@ fun TicketListBodyScreen(
     uiState: TicketUiState,
     onTicketClick: (Int) -> Unit,
     createTicket: () -> Unit,
-    prioridades: List<PrioridadEntity>
+    prioridades: List<PrioridadDto>,
+    clientes: List<ClienteDto>
 ) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text(text = "Lista de Tickets")
-                },
+                title = { Text(text = "Lista de Tickets") },
                 navigationIcon = {
                     IconButton(onClick = {
                         scope.launch {
@@ -81,7 +82,8 @@ fun TicketListBodyScreen(
                     }) {
                         Icon(imageVector = Icons.Default.Menu, contentDescription = "Ir al Menu")
                     }
-                })
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -90,9 +92,8 @@ fun TicketListBodyScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Añadir Ticket")
             }
-        },
-
-        ) { paddingValues ->
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -137,7 +138,8 @@ fun TicketListBodyScreen(
                     TicketRow(
                         ticket = ticket,
                         onTicketClick = onTicketClick,
-                        prioridades = prioridades
+                        prioridades = prioridades,
+                        clientes = clientes // Pasamos la lista de clientes
                     )
                 }
             }
@@ -147,11 +149,13 @@ fun TicketListBodyScreen(
 
 @Composable
 fun TicketRow(
-    ticket: TicketEntity,
+    ticket: TicketDto,
     onTicketClick: (Int) -> Unit,
-    prioridades: List<PrioridadEntity>
+    prioridades: List<PrioridadDto>,
+    clientes: List<ClienteDto>
 ) {
     val prioridad = prioridades.find { it.prioridadId == ticket.prioridadId }
+    val cliente = clientes.find { it.clienteId == ticket.clienteId }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -162,7 +166,7 @@ fun TicketRow(
         Text(modifier = Modifier.weight(1f), text = ticket.ticketId.toString())
         Text(
             modifier = Modifier.weight(2f),
-            text = ticket.cliente,
+            text = cliente?.nombres ?: "N/A", // Mostramos el nombre del cliente o "N/A"
             style = MaterialTheme.typography.headlineSmall
         )
         Text(modifier = Modifier.weight(2f), text = ticket.asunto)
